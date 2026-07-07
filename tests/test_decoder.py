@@ -16,7 +16,7 @@ def test_decode_returns_header_and_payload() -> None:
 
 
 def test_algorithm_property_reads_header() -> None:
-    parsed = decode(build_hs_token({"sub": "x"}, alg="HS512"))
+    parsed = decode(build_hs_token({"sub": "x"}, alg = "HS512"))
     assert parsed.algorithm == "HS512"
 
 
@@ -30,7 +30,7 @@ def test_none_token_has_empty_signature() -> None:
 def test_signing_input_is_header_dot_payload() -> None:
     token = build_hs_token({"sub": "x"})
     parsed = decode(token)
-    expected = ".".join(token.split(".")[:2]).encode("ascii")
+    expected = ".".join(token.split(".")[: 2]).encode("ascii")
     assert parsed.signing_input == expected
 
 

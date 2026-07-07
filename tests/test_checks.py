@@ -32,7 +32,7 @@ def test_alg_none_ignores_signed_token() -> None:
 
 
 def test_unknown_algorithm_flagged() -> None:
-    token = decode(build_bare_alg_token({"sub": "x"}, alg="HS999"))
+    token = decode(build_bare_alg_token({"sub": "x"}, alg = "HS999"))
     findings = checks.check_unknown_algorithm(token)
     assert findings[0].check_id == "alg-unknown"
 
@@ -43,7 +43,7 @@ def test_known_algorithm_not_flagged() -> None:
 
 
 def test_unsigned_real_alg_is_high() -> None:
-    token = decode(build_unsigned_token({"sub": "x"}, alg="HS256"))
+    token = decode(build_unsigned_token({"sub": "x"}, alg = "HS256"))
     findings = checks.check_unsigned(token)
     assert findings[0].severity is Severity.HIGH
     assert findings[0].check_id == "empty-signature"
@@ -55,14 +55,14 @@ def test_unsigned_ignores_none_alg() -> None:
 
 
 def test_weak_secret_recovered() -> None:
-    token = decode(build_hs_token({"sub": "x"}, secret="secret"))
+    token = decode(build_hs_token({"sub": "x"}, secret = "secret"))
     findings = checks.check_weak_hmac_secret(token, ["secret", "other"])
     assert findings[0].severity is Severity.CRITICAL
     assert "secret" in findings[0].evidence
 
 
 def test_strong_secret_not_recovered() -> None:
-    token = decode(build_hs_token({"sub": "x"}, secret="k4Jd9-random-XYZ"))
+    token = decode(build_hs_token({"sub": "x"}, secret = "k4Jd9-random-XYZ"))
     assert checks.check_weak_hmac_secret(token, ["secret", "admin"]) == []
 
 
@@ -124,7 +124,7 @@ def test_sensitive_claim_flagged() -> None:
 
 def test_audit_terrible_token_scores_high() -> None:
     token = decode(build_none_token({"password": "p"}))
-    report = checks.audit(token, now=FIXED_NOW)
+    report = checks.audit(token, now = FIXED_NOW)
     ids = _ids(report.findings)
     assert "alg-none" in ids
     assert "sensitive-claim" in ids
@@ -140,14 +140,24 @@ def test_audit_clean_token_scores_low() -> None:
         "iat": FIXED_NOW,
         "exp": FIXED_NOW + ONE_HOUR,
     }
-    token = decode(build_hs_token(payload, secret="k4Jd9-random-XYZ-not-in-list"))
-    report = checks.audit(token, now=FIXED_NOW)
+    token = decode(
+        build_hs_token(payload,
+                       secret = "k4Jd9-random-XYZ-not-in-list")
+    )
+    report = checks.audit(token, now = FIXED_NOW)
     assert report.findings == []
     assert report.risk_score == 0.0
     assert report.highest_severity is None
 
 
 def test_audit_uses_builtin_wordlist_by_default() -> None:
-    token = decode(build_hs_token({"iss": "a", "aud": "b", "sub": "c"}, secret="admin"))
-    report = checks.audit(token, now=FIXED_NOW)
+    token = decode(
+        build_hs_token({
+            "iss": "a",
+            "aud": "b",
+            "sub": "c"
+        },
+                       secret = "admin")
+    )
+    report = checks.audit(token, now = FIXED_NOW)
     assert "weak-hmac-secret" in _ids(report.findings)

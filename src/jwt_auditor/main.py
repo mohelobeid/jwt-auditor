@@ -38,13 +38,14 @@ from jwt_auditor.output import (
 from jwt_auditor.signatures import crack_hmac_secret, supported_hmac_algs
 from jwt_auditor.wordlist import COMMON_SECRETS, load_wordlist
 
+
 app = typer.Typer(
-    name="jwt-auditor",
-    help="Decode and audit JSON Web Tokens for common security mistakes.",
-    no_args_is_help=True,
+    name = "jwt-auditor",
+    help = "Decode and audit JSON Web Tokens for common security mistakes.",
+    no_args_is_help = True,
 )
 console = Console()
-err_console = Console(stderr=True)
+err_console = Console(stderr = True)
 
 # Order matters: the index is the severity rank, used to compare fail levels.
 _FAIL_LEVELS = ("critical", "high", "medium", "low", "info")
@@ -60,7 +61,7 @@ def _read_token(token: str | None, input_file: Path | None) -> str:
     if token is not None:
         return token
     if input_file is not None:
-        return input_file.read_text(encoding="utf-8").strip()
+        return input_file.read_text(encoding = "utf-8").strip()
     if not sys.stdin.isatty():
         piped = sys.stdin.read().strip()
         if piped:
@@ -76,7 +77,7 @@ def _decode_or_exit(raw: str) -> DecodedToken:
         return decode(raw)
     except InvalidTokenError as exc:
         err_console.print(f"[red]Not a valid JWT:[/red] {exc}")
-        raise typer.Exit(code=2) from None
+        raise typer.Exit(code = 2) from None
 
 
 def _reaches_fail_level(report: AuditReport, fail_level: str) -> bool:
@@ -91,15 +92,18 @@ def _reaches_fail_level(report: AuditReport, fail_level: str) -> bool:
 def decode_command(
     token: Annotated[
         str | None,
-        typer.Argument(help="The JWT string (or use --input-file or stdin)"),
+        typer.Argument(help = "The JWT string (or use --input-file or stdin)"),
     ] = None,
     input_file: Annotated[
         Path | None,
-        typer.Option("--input-file", "-i", help="Read the token from a file"),
+        typer.Option("--input-file",
+                     "-i",
+                     help = "Read the token from a file"),
     ] = None,
     as_json: Annotated[
         bool,
-        typer.Option("--json", help="Emit machine readable JSON"),
+        typer.Option("--json",
+                     help = "Emit machine readable JSON"),
     ] = False,
 ) -> None:
     """
@@ -109,7 +113,7 @@ def decode_command(
     """
     parsed = _decode_or_exit(_read_token(token, input_file))
     if as_json:
-        console.print_json(data=decoded_to_dict(parsed))
+        console.print_json(data = decoded_to_dict(parsed))
     else:
         render_decoded(console, parsed)
 
@@ -118,31 +122,47 @@ def decode_command(
 def audit_command(
     token: Annotated[
         str | None,
-        typer.Argument(help="The JWT string (or use --input-file or stdin)"),
+        typer.Argument(help = "The JWT string (or use --input-file or stdin)"),
     ] = None,
     input_file: Annotated[
         Path | None,
-        typer.Option("--input-file", "-i", help="Read the token from a file"),
+        typer.Option("--input-file",
+                     "-i",
+                     help = "Read the token from a file"),
     ] = None,
     wordlist: Annotated[
         Path | None,
-        typer.Option("--wordlist", "-w", help="Wordlist of secrets for the HMAC check"),
+        typer.Option(
+            "--wordlist",
+            "-w",
+            help = "Wordlist of secrets for the HMAC check"
+        ),
     ] = None,
     public_key: Annotated[
         Path | None,
-        typer.Option("--public-key", "-p", help="Public key PEM to test alg confusion"),
+        typer.Option(
+            "--public-key",
+            "-p",
+            help = "Public key PEM to test alg confusion"
+        ),
     ] = None,
     max_lifetime: Annotated[
         float,
-        typer.Option("--max-lifetime", help="Hours before a token counts as long lived"),
+        typer.Option(
+            "--max-lifetime",
+            help = "Hours before a token counts as long lived"
+        ),
     ] = 24.0,
     fail_level: Annotated[
         str,
-        typer.Option("--fail-level", help="Exit non-zero at this severity or worse"),
+        typer.
+        Option("--fail-level",
+               help = "Exit non-zero at this severity or worse"),
     ] = "high",
     as_json: Annotated[
         bool,
-        typer.Option("--json", help="Emit machine readable JSON"),
+        typer.Option("--json",
+                     help = "Emit machine readable JSON"),
     ] = False,
 ) -> None:
     """
@@ -157,38 +177,45 @@ def audit_command(
         )
 
     parsed = _decode_or_exit(_read_token(token, input_file))
-    secrets = load_wordlist(wordlist) if wordlist is not None else list(COMMON_SECRETS)
+    secrets = load_wordlist(wordlist
+                            ) if wordlist is not None else list(COMMON_SECRETS)
     key_bytes = public_key.read_bytes() if public_key is not None else None
 
     report = checks.audit(
         parsed,
-        wordlist=secrets,
-        public_key_pem=key_bytes,
-        max_lifetime_hours=max_lifetime,
+        wordlist = secrets,
+        public_key_pem = key_bytes,
+        max_lifetime_hours = max_lifetime,
     )
 
     if as_json:
-        console.print_json(data=report_to_dict(report))
+        console.print_json(data = report_to_dict(report))
     else:
         render_report(console, report)
 
     if _reaches_fail_level(report, fail_level):
-        raise typer.Exit(code=1)
+        raise typer.Exit(code = 1)
 
 
 @app.command("crack")
 def crack_command(
     token: Annotated[
         str | None,
-        typer.Argument(help="The JWT string (or use --input-file or stdin)"),
+        typer.Argument(help = "The JWT string (or use --input-file or stdin)"),
     ] = None,
     input_file: Annotated[
         Path | None,
-        typer.Option("--input-file", "-i", help="Read the token from a file"),
+        typer.Option("--input-file",
+                     "-i",
+                     help = "Read the token from a file"),
     ] = None,
     wordlist: Annotated[
         Path | None,
-        typer.Option("--wordlist", "-w", help="Wordlist of secrets (defaults to built in)"),
+        typer.Option(
+            "--wordlist",
+            "-w",
+            help = "Wordlist of secrets (defaults to built in)"
+        ),
     ] = None,
 ) -> None:
     """
@@ -203,13 +230,16 @@ def crack_command(
             f"[yellow]{parsed.algorithm or 'this token'} is not HMAC signed, "
             "there is no shared secret to guess.[/yellow]"
         )
-        raise typer.Exit(code=1)
+        raise typer.Exit(code = 1)
 
-    secrets = load_wordlist(wordlist) if wordlist is not None else list(COMMON_SECRETS)
+    secrets = load_wordlist(wordlist
+                            ) if wordlist is not None else list(COMMON_SECRETS)
     found = crack_hmac_secret(parsed, secrets)
     if found is None:
-        console.print(f"[red]No secret in the list of {len(secrets)} matched.[/red]")
-        raise typer.Exit(code=1)
+        console.print(
+            f"[red]No secret in the list of {len(secrets)} matched.[/red]"
+        )
+        raise typer.Exit(code = 1)
 
     console.print(f"[bold green]Secret found:[/bold green] {found!r}")
     console.print("The token can now be forged. Rotate this key.")

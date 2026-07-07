@@ -29,11 +29,12 @@ from jwt_auditor.decoder import DecodedToken
 
 # alg name -> the hashlib digest name RFC 7518 pairs it with. hmac.new accepts
 # the digest as a string, so there is no need to import hashlib here.
-_HASH_BY_ALG: dict[str, str] = {
-    "HS256": "sha256",
-    "HS384": "sha384",
-    "HS512": "sha512",
-}
+_HASH_BY_ALG: dict[str,
+                   str] = {
+                       "HS256": "sha256",
+                       "HS384": "sha384",
+                       "HS512": "sha512",
+                   }
 
 
 def supported_hmac_algs() -> frozenset[str]:
@@ -54,7 +55,11 @@ def hmac_sign(signing_input: bytes, secret: bytes, alg: str) -> bytes:
     return hmac.new(secret, signing_input, digest_name).digest()
 
 
-def verify_hmac(token: DecodedToken, secret: bytes, alg: str | None = None) -> bool:
+def verify_hmac(
+    token: DecodedToken,
+    secret: bytes,
+    alg: str | None = None
+) -> bool:
     """
     Return True if secret produces the token's signature under alg.
 
@@ -110,13 +115,16 @@ def key_confusion_secret(
 
     Returns a short label describing which form matched, or None.
     """
-    variants: dict[str, bytes] = {
-        "public key PEM as stored": public_key_pem,
-        "public key PEM without trailing newline": public_key_pem.rstrip(b"\n"),
-        "public key PEM with trailing newline": public_key_pem.rstrip(b"\n") + b"\n",
-    }
+    variants: dict[str,
+                   bytes] = {
+                       "public key PEM as stored": public_key_pem,
+                       "public key PEM without trailing newline":
+                       public_key_pem.rstrip(b"\n"),
+                       "public key PEM with trailing newline":
+                       public_key_pem.rstrip(b"\n") + b"\n",
+                   }
     for alg in _HASH_BY_ALG:
         for label, material in variants.items():
-            if verify_hmac(token, material, alg=alg):
+            if verify_hmac(token, material, alg = alg):
                 return f"{label} (verified as {alg})"
     return None

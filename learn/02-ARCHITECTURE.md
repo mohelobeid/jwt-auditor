@@ -78,10 +78,10 @@ Step by step of what happens on `jwt-auditor audit <token>`:
 1. main.audit_command reads the token       (src/jwt_auditor/main.py)
    resolves it from arg, --input-file, or stdin
 
-2. decoder.decode parses it                  (src/jwt_auditor/decoder.py:86)
+2. decoder.decode parses it                  (src/jwt_auditor/decoder.py:90)
    returns a DecodedToken, or exits 2 on a bad token
 
-3. checks.audit runs every check             (src/jwt_auditor/checks.py:372)
+3. checks.audit runs every check             (src/jwt_auditor/checks.py:391)
    each check appends zero or more Finding objects
 
 4. models.AuditReport scores the findings    (src/jwt_auditor/models.py)
@@ -102,8 +102,8 @@ Step by step of what happens on `jwt-auditor audit <token>`:
 `check_x(token, ...) -> list[Finding]`.
 
 **Where we use it:** all of `checks.py`, for example `check_alg_none`
-(`src/jwt_auditor/checks.py:68`) and `check_expiration`
-(`src/jwt_auditor/checks.py:226`).
+(`src/jwt_auditor/checks.py:76`) and `check_expiration`
+(`src/jwt_auditor/checks.py:238`).
 
 **Why we chose it:** a check that returns data instead of printing is trivial to
 test. `test_checks.py` calls each one directly with a crafted token and asserts
@@ -112,7 +112,7 @@ on the returned findings. There is no need to capture stdout or mock a console.
 **Trade-offs:**
 - Pros: isolated, testable, easy to add a new check.
 - Cons: `audit()` has to know the list of checks and call each one. That list
-  lives in one place (`src/jwt_auditor/checks.py:390`) so it is easy to find.
+  lives in one place (`src/jwt_auditor/checks.py:409`) so it is easy to find.
 
 ### Separating policy from presentation
 
@@ -253,7 +253,7 @@ answer ("this is not a JWT"), not something to paper over.
 
 1. Write `check_yourthing(token, ...) -> list[Finding]` in `checks.py`.
 2. Add one line to `audit()` to call it
-   (`src/jwt_auditor/checks.py:390`).
+   (`src/jwt_auditor/checks.py:409`).
 3. Add a test in `tests/test_checks.py`.
 
 That is the whole process. Because output and scoring are generic over

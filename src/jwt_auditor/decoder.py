@@ -42,7 +42,9 @@ def _b64url_decode(segment: str) -> bytes:
     try:
         return base64.urlsafe_b64decode(segment + padding)
     except (binascii.Error, ValueError) as exc:
-        raise InvalidTokenError(f"segment is not valid base64url: {exc}") from None
+        raise InvalidTokenError(
+            f"segment is not valid base64url: {exc}"
+        ) from None
 
 
 def _decode_json_segment(segment: str, name: str) -> dict[str, Any]:
@@ -53,7 +55,9 @@ def _decode_json_segment(segment: str, name: str) -> dict[str, Any]:
     except json.JSONDecodeError as exc:
         raise InvalidTokenError(f"{name} is not valid JSON: {exc}") from None
     if not isinstance(value, dict):
-        raise InvalidTokenError(f"{name} must be a JSON object, got {type(value).__name__}")
+        raise InvalidTokenError(
+            f"{name} must be a JSON object, got {type(value).__name__}"
+        )
     return value
 
 
@@ -108,12 +112,12 @@ def decode(token: str) -> DecodedToken:
     signature = _b64url_decode(signature_b64) if signature_b64 else b""
 
     return DecodedToken(
-        raw=token,
-        header=header,
-        payload=payload,
-        signature=signature,
-        signing_input=f"{header_b64}.{payload_b64}".encode("ascii"),
-        header_b64=header_b64,
-        payload_b64=payload_b64,
-        signature_b64=signature_b64,
+        raw = token,
+        header = header,
+        payload = payload,
+        signature = signature,
+        signing_input = f"{header_b64}.{payload_b64}".encode("ascii"),
+        header_b64 = header_b64,
+        payload_b64 = payload_b64,
+        signature_b64 = signature_b64,
     )

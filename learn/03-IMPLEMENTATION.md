@@ -54,7 +54,7 @@ base64.urlsafe_b64decode(segment)
 
 `decode` splits the token, decodes both JSON parts, and keeps the signing input.
 
-`src/jwt_auditor/decoder.py:86`
+`src/jwt_auditor/decoder.py:90`
 
 ```python
 def decode(token: str) -> DecodedToken:
@@ -100,7 +100,7 @@ not the parser.
 
 ### Verifying in constant time
 
-`src/jwt_auditor/signatures.py:57`
+`src/jwt_auditor/signatures.py:58`
 
 ```python
 def verify_hmac(token: DecodedToken, secret: bytes, alg: str | None = None) -> bool:
@@ -115,7 +115,7 @@ def verify_hmac(token: DecodedToken, secret: bytes, alg: str | None = None) -> b
 
 **Key parts explained:**
 
-`hmac.compare_digest` (`src/jwt_auditor/signatures.py:73`) is the important line.
+`hmac.compare_digest` (`src/jwt_auditor/signatures.py:78`) is the important line.
 A normal `==` on bytes short circuits at the first differing byte, so a wrong
 guess that shares a longer prefix takes measurably longer. Over many requests an
 attacker can use that timing to recover the signature one byte at a time.
@@ -127,7 +127,7 @@ claims RS256".
 
 ### Cracking a secret
 
-`src/jwt_auditor/signatures.py:76`
+`src/jwt_auditor/signatures.py:81`
 
 ```python
 def crack_hmac_secret(token, candidates):
@@ -145,7 +145,7 @@ match it returns the secret.
 
 ### The key confusion test
 
-`src/jwt_auditor/signatures.py:95`
+`src/jwt_auditor/signatures.py:100`
 
 ```python
 def key_confusion_secret(token, public_key_pem):
@@ -169,7 +169,7 @@ try the common forms rather than guess one.
 
 Each check is small and returns findings. Here is the `alg: none` one in full.
 
-`src/jwt_auditor/checks.py:68`
+`src/jwt_auditor/checks.py:76`
 
 ```python
 def check_alg_none(token: DecodedToken) -> list[Finding]:
@@ -199,7 +199,7 @@ Note `token.algorithm.lower()`. The attack has been carried out with `none`,
 
 ### A subtle bug this design avoids: bool is an int
 
-`src/jwt_auditor/checks.py:58`
+`src/jwt_auditor/checks.py:66`
 
 ```python
 def _as_timestamp(payload, claim):
@@ -218,7 +218,7 @@ In Python, `True` is an instance of `int` and equals `1`. Without the explicit
 
 ## The audit runner
 
-`src/jwt_auditor/checks.py:372`
+`src/jwt_auditor/checks.py:391`
 
 ```python
 def audit(token, *, now=None, wordlist=None, public_key_pem=None,

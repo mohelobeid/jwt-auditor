@@ -27,14 +27,16 @@ def b64url(data: bytes) -> str:
 
 def _segment(obj: dict[str, Any]) -> str:
     """Encode a JSON object as a base64url JWT segment."""
-    return b64url(json.dumps(obj, separators=(",", ":")).encode("utf-8"))
+    return b64url(json.dumps(obj, separators = (",", ":")).encode("utf-8"))
 
 
 def build_hs_token(
-    payload: dict[str, Any],
+    payload: dict[str,
+                  Any],
     secret: str = "secret",
     alg: str = "HS256",
-    header: dict[str, Any] | None = None,
+    header: dict[str,
+                 Any] | None = None,
 ) -> str:
     """Build an HMAC signed token using the given secret."""
     head = header or {"alg": alg, "typ": "JWT"}

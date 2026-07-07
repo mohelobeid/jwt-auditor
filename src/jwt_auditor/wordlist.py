@@ -23,55 +23,57 @@ Connects to:
 from pathlib import Path
 
 
-COMMON_SECRETS: tuple[str, ...] = (
-    "secret",
-    "password",
-    "changeme",
-    "admin",
-    "test",
-    "jwt",
-    "key",
-    "private",
-    "secretkey",
-    "supersecret",
-    "your-256-bit-secret",
-    "your-384-bit-secret",
-    "your-512-bit-secret",
-    "s3cr3t",
-    "123456",
-    "12345678",
-    "qwerty",
-    "letmein",
-    "default",
-    "token",
-    "hmac",
-    "signature",
-    "root",
-    "0000",
-)
+COMMON_SECRETS: tuple[str,
+                      ...] = (
+                          "secret",
+                          "password",
+                          "changeme",
+                          "admin",
+                          "test",
+                          "jwt",
+                          "key",
+                          "private",
+                          "secretkey",
+                          "supersecret",
+                          "your-256-bit-secret",
+                          "your-384-bit-secret",
+                          "your-512-bit-secret",
+                          "s3cr3t",
+                          "123456",
+                          "12345678",
+                          "qwerty",
+                          "letmein",
+                          "default",
+                          "token",
+                          "hmac",
+                          "signature",
+                          "root",
+                          "0000",
+                      )
 
 
 # Claim names that suggest sensitive data is being carried in the payload.
 # A JWT payload is only base64url encoded, so anyone holding the token can
 # read these. Matched case insensitively against claim keys.
-SENSITIVE_CLAIM_KEYS: tuple[str, ...] = (
-    "password",
-    "passwd",
-    "pwd",
-    "secret",
-    "api_key",
-    "apikey",
-    "access_key",
-    "private_key",
-    "ssn",
-    "social_security",
-    "credit_card",
-    "card_number",
-    "cvv",
-    "pin",
-    "bank_account",
-    "session_secret",
-)
+SENSITIVE_CLAIM_KEYS: tuple[str,
+                            ...] = (
+                                "password",
+                                "passwd",
+                                "pwd",
+                                "secret",
+                                "api_key",
+                                "apikey",
+                                "access_key",
+                                "private_key",
+                                "ssn",
+                                "social_security",
+                                "credit_card",
+                                "card_number",
+                                "cvv",
+                                "pin",
+                                "bank_account",
+                                "session_secret",
+                            )
 
 
 def load_wordlist(path: Path) -> list[str]:
@@ -82,5 +84,5 @@ def load_wordlist(path: Path) -> list[str]:
     leading or trailing spaces stripped only at the line ends, because a
     secret can legitimately contain internal spaces.
     """
-    lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
+    lines = path.read_text(encoding = "utf-8", errors = "replace").splitlines()
     return [line for line in (raw.strip() for raw in lines) if line]

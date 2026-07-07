@@ -31,13 +31,15 @@ from rich.text import Text
 from jwt_auditor.decoder import DecodedToken
 from jwt_auditor.models import AuditReport, Finding, Severity
 
-_SEVERITY_STYLE: dict[Severity, str] = {
-    Severity.CRITICAL: "bold red",
-    Severity.HIGH: "red",
-    Severity.MEDIUM: "yellow",
-    Severity.LOW: "cyan",
-    Severity.INFO: "dim",
-}
+
+_SEVERITY_STYLE: dict[Severity,
+                      str] = {
+                          Severity.CRITICAL: "bold red",
+                          Severity.HIGH: "red",
+                          Severity.MEDIUM: "yellow",
+                          Severity.LOW: "cyan",
+                          Severity.INFO: "dim",
+                      }
 
 
 def decoded_to_dict(token: DecodedToken) -> dict[str, Any]:
@@ -85,7 +87,7 @@ def _finding_to_dict(finding: Finding) -> dict[str, Any]:
 
 def _pretty_json(value: dict[str, Any]) -> str:
     """Format a dict as indented JSON for display."""
-    return json.dumps(value, indent=2, sort_keys=False, default=str)
+    return json.dumps(value, indent = 2, sort_keys = False, default = str)
 
 
 def render_decoded(console: Console, token: DecodedToken) -> None:
@@ -93,17 +95,17 @@ def render_decoded(console: Console, token: DecodedToken) -> None:
     console.print(
         Panel(
             _pretty_json(token.header),
-            title="Header",
-            border_style="cyan",
-            expand=False,
+            title = "Header",
+            border_style = "cyan",
+            expand = False,
         )
     )
     console.print(
         Panel(
             _pretty_json(token.payload),
-            title="Payload",
-            border_style="green",
-            expand=False,
+            title = "Payload",
+            border_style = "green",
+            expand = False,
         )
     )
     sig_summary = (
@@ -112,7 +114,12 @@ def render_decoded(console: Console, token: DecodedToken) -> None:
         f"bytes     : {len(token.signature)}"
     )
     console.print(
-        Panel(sig_summary, title="Signature", border_style="magenta", expand=False)
+        Panel(
+            sig_summary,
+            title = "Signature",
+            border_style = "magenta",
+            expand = False
+        )
     )
 
 
@@ -124,18 +131,21 @@ def render_report(console: Console, report: AuditReport) -> None:
         console.print("[green]No issues found by the checks that ran.[/green]")
         return
 
-    table = Table(title="Findings", show_lines=True, expand=False)
-    table.add_column("Severity", justify="left", no_wrap=True)
-    table.add_column("Issue", justify="left")
-    table.add_column("Evidence", justify="left", overflow="fold")
+    table = Table(title = "Findings", show_lines = True, expand = False)
+    table.add_column("Severity", justify = "left", no_wrap = True)
+    table.add_column("Issue", justify = "left")
+    table.add_column("Evidence", justify = "left", overflow = "fold")
 
     for finding in report.sorted_findings:
         style = _SEVERITY_STYLE[finding.severity]
-        severity_cell = Text(finding.severity.label.upper(), style=style)
+        severity_cell = Text(finding.severity.label.upper(), style = style)
         issue_cell = Text(finding.title)
-        issue_cell.append(f"\n{finding.detail}", style="dim")
+        issue_cell.append(f"\n{finding.detail}", style = "dim")
         if finding.recommendation:
-            issue_cell.append(f"\nFix: {finding.recommendation}", style="italic")
+            issue_cell.append(
+                f"\nFix: {finding.recommendation}",
+                style = "italic"
+            )
         table.add_row(severity_cell, issue_cell, finding.evidence or "-")
 
     console.print(table)
@@ -154,5 +164,10 @@ def _summary_panel(report: AuditReport) -> Panel:
     counts = report.counts_by_severity()
     for severity in Severity:
         lines.append(f"{severity.label:>8} : {counts[severity]}")
-    body = Text("\n".join(lines), style=score_style)
-    return Panel(body, title="JWT Audit Summary", border_style=score_style, expand=False)
+    body = Text("\n".join(lines), style = score_style)
+    return Panel(
+        body,
+        title = "JWT Audit Summary",
+        border_style = score_style,
+        expand = False
+    )

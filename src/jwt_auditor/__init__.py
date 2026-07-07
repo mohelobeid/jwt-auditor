@@ -23,6 +23,7 @@ from jwt_auditor.checks import audit
 from jwt_auditor.decoder import DecodedToken, InvalidTokenError, decode
 from jwt_auditor.models import AuditReport, Finding, Severity
 
+
 __version__ = "0.1.0"
 __all__ = [
     "AuditReport",

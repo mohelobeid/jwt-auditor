@@ -28,32 +28,35 @@ def test_hmac_sign_matches_stdlib() -> None:
 
 
 def test_verify_hmac_accepts_correct_secret() -> None:
-    token = decode(build_hs_token({"sub": "x"}, secret="hunter2"))
+    token = decode(build_hs_token({"sub": "x"}, secret = "hunter2"))
     assert verify_hmac(token, b"hunter2") is True
 
 
 def test_verify_hmac_rejects_wrong_secret() -> None:
-    token = decode(build_hs_token({"sub": "x"}, secret="hunter2"))
+    token = decode(build_hs_token({"sub": "x"}, secret = "hunter2"))
     assert verify_hmac(token, b"wrong") is False
 
 
 def test_verify_hmac_rejects_non_hmac_alg() -> None:
-    token = decode(build_bare_alg_token({"sub": "x"}, alg="RS256"))
+    token = decode(build_bare_alg_token({"sub": "x"}, alg = "RS256"))
     assert verify_hmac(token, b"anything") is False
 
 
 def test_crack_finds_secret_in_list() -> None:
-    token = decode(build_hs_token({"sub": "x"}, secret="changeme"))
+    token = decode(build_hs_token({"sub": "x"}, secret = "changeme"))
     assert crack_hmac_secret(token, ["nope", "changeme", "other"]) == "changeme"
 
 
 def test_crack_returns_none_when_absent() -> None:
-    token = decode(build_hs_token({"sub": "x"}, secret="a-very-strong-random-key"))
+    token = decode(
+        build_hs_token({"sub": "x"},
+                       secret = "a-very-strong-random-key")
+    )
     assert crack_hmac_secret(token, ["nope", "other"]) is None
 
 
 def test_crack_returns_none_for_non_hmac() -> None:
-    token = decode(build_bare_alg_token({"sub": "x"}, alg="RS256"))
+    token = decode(build_bare_alg_token({"sub": "x"}, alg = "RS256"))
     assert crack_hmac_secret(token, ["secret", "changeme"]) is None
 
 
@@ -61,8 +64,8 @@ def test_key_confusion_detects_public_key_as_secret() -> None:
     # Attacker forges an HS256 token signed with the public key bytes.
     forged = build_hs_token(
         {"sub": "admin"},
-        secret=FAKE_PUBLIC_KEY.decode("latin-1"),
-        alg="HS256",
+        secret = FAKE_PUBLIC_KEY.decode("latin-1"),
+        alg = "HS256",
     )
     token = decode(forged)
     result = key_confusion_secret(token, FAKE_PUBLIC_KEY)
@@ -71,5 +74,5 @@ def test_key_confusion_detects_public_key_as_secret() -> None:
 
 
 def test_key_confusion_returns_none_for_unrelated_key() -> None:
-    token = decode(build_hs_token({"sub": "x"}, secret="unrelated-secret"))
+    token = decode(build_hs_token({"sub": "x"}, secret = "unrelated-secret"))
     assert key_confusion_secret(token, FAKE_PUBLIC_KEY) is None

@@ -70,19 +70,19 @@ class AuditReport:
     """The complete outcome of auditing a single token."""
 
     token: DecodedToken
-    findings: list[Finding] = field(default_factory=list)
+    findings: list[Finding] = field(default_factory = list)
 
     @property
     def sorted_findings(self) -> list[Finding]:
         """Findings ordered most severe first, stable within a severity."""
-        return sorted(self.findings, key=lambda f: f.severity.rank)
+        return sorted(self.findings, key = lambda f: f.severity.rank)
 
     @property
     def highest_severity(self) -> Severity | None:
         """The worst severity present, or None when nothing was found."""
         if not self.findings:
             return None
-        return min((f.severity for f in self.findings), key=lambda s: s.rank)
+        return min((f.severity for f in self.findings), key = lambda s: s.rank)
 
     @property
     def risk_score(self) -> float:

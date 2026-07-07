@@ -7,6 +7,7 @@ from typer.testing import CliRunner
 from jwt_auditor.main import app
 from tests.conftest import build_hs_token, build_none_token
 
+
 runner = CliRunner()
 
 
@@ -49,7 +50,7 @@ def test_audit_json_contains_findings() -> None:
 
 def test_audit_clean_token_passes() -> None:
     payload = {"iss": "a", "aud": "b", "sub": "c"}
-    token = build_hs_token(payload, secret="k4Jd9-random-XYZ-not-in-list")
+    token = build_hs_token(payload, secret = "k4Jd9-random-XYZ-not-in-list")
     # No exp means one medium finding, below the default high fail level.
     result = runner.invoke(app, ["audit", token])
     assert result.exit_code == 0
@@ -57,20 +58,20 @@ def test_audit_clean_token_passes() -> None:
 
 def test_audit_fail_level_medium_trips_on_missing_exp() -> None:
     payload = {"iss": "a", "aud": "b", "sub": "c"}
-    token = build_hs_token(payload, secret="k4Jd9-random-XYZ-not-in-list")
+    token = build_hs_token(payload, secret = "k4Jd9-random-XYZ-not-in-list")
     result = runner.invoke(app, ["audit", token, "--fail-level", "medium"])
     assert result.exit_code == 1
 
 
 def test_crack_finds_weak_secret() -> None:
-    token = build_hs_token({"sub": "x"}, secret="changeme")
+    token = build_hs_token({"sub": "x"}, secret = "changeme")
     result = runner.invoke(app, ["crack", token])
     assert result.exit_code == 0
     assert "changeme" in result.stdout
 
 
 def test_crack_reports_no_match_for_strong_secret() -> None:
-    token = build_hs_token({"sub": "x"}, secret="k4Jd9-random-XYZ-not-in-list")
+    token = build_hs_token({"sub": "x"}, secret = "k4Jd9-random-XYZ-not-in-list")
     result = runner.invoke(app, ["crack", token])
     assert result.exit_code == 1
 
@@ -79,13 +80,13 @@ def test_crack_rejects_non_hmac_token() -> None:
     # An RS256 token has no shared secret, so crack should refuse it.
     from tests.conftest import build_bare_alg_token
 
-    rs_token = build_bare_alg_token({"sub": "x"}, alg="RS256")
+    rs_token = build_bare_alg_token({"sub": "x"}, alg = "RS256")
     result = runner.invoke(app, ["crack", rs_token])
     assert result.exit_code == 1
 
 
 def test_audit_reads_token_from_stdin() -> None:
     token = build_none_token({"sub": "x"})
-    result = runner.invoke(app, ["audit"], input=token)
+    result = runner.invoke(app, ["audit"], input = token)
     assert result.exit_code == 1
     assert "CRITICAL" in result.stdout
