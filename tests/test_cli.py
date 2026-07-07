@@ -90,3 +90,11 @@ def test_audit_reads_token_from_stdin() -> None:
     result = runner.invoke(app, ["audit"], input = token)
     assert result.exit_code == 1
     assert "CRITICAL" in result.stdout
+
+
+def test_audit_reads_token_from_stdin_with_dash() -> None:
+    # A literal "-" argument means read from stdin, the usual idiom.
+    token = build_none_token({"sub": "x"})
+    result = runner.invoke(app, ["audit", "-"], input = token)
+    assert result.exit_code == 1
+    assert "CRITICAL" in result.stdout

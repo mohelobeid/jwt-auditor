@@ -83,8 +83,16 @@ cd PROJECTS/beginner/jwt-auditor
 # install the tool and its dev dependencies
 uv sync --all-extras
 
-# audit a token (this one is signed with the secret "secret")
-uv run jwt-auditor audit eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiJ9.PGnRccPTXeaxA8nzfytWewWRkizJa_ihI_3H6ec-Zbw
+# build a throwaway HS256 token signed with the weak secret "secret",
+# then audit it (generated at runtime so no token is hardcoded here)
+python3 - <<'PY' | uv run jwt-auditor audit -
+import base64, hmac, hashlib, json
+b = lambda raw: base64.urlsafe_b64encode(raw).rstrip(b"=").decode()
+head = b(json.dumps({"alg": "HS256", "typ": "JWT"}).encode())
+body = b(json.dumps({"sub": "admin"}).encode())
+sig = b(hmac.new(b"secret", f"{head}.{body}".encode(), hashlib.sha256).digest())
+print(f"{head}.{body}.{sig}")
+PY
 ```
 
 Expected output: a summary panel with a risk score of 10.0 and a findings

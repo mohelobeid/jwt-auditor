@@ -56,9 +56,10 @@ def _read_token(token: str | None, input_file: Path | None) -> str:
     Resolve the token from an argument, a file, or stdin, in that order.
 
     Reading from stdin lets you pipe a token in without it landing in your
-    shell history, which matters because a token is a bearer credential.
+    shell history, which matters because a token is a bearer credential. A
+    literal "-" as the argument means stdin, the usual command line idiom.
     """
-    if token is not None:
+    if token is not None and token != "-":  # noqa: S105 - "-" is stdin, not a secret
         return token
     if input_file is not None:
         return input_file.read_text(encoding = "utf-8").strip()
